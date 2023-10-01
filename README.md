@@ -5,6 +5,10 @@ This repo is an implementation of the following paper: Frequency-domain attentio
   <img src="model/figs/segment_model.png" width="800"/>
 </p>
 
+<p align="center">
+  <img src="model/figs/classify_model.png" width="600"/>
+</p>
+
 # Requirements
 + CUDA/CUDNN
 + pytorch 1.10.1
