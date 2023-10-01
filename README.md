@@ -13,5 +13,5 @@ The detailed structure of the classification part is shown as follows:
 
 # Requirements
 + CUDA/CUDNN
-+ pytorch 1.10.1
-+ torchvision 0.11.2
++ pytorch>=1.10.1
++ torchvision>=0.11.2
