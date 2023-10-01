@@ -5,6 +5,7 @@ This repo is an implementation of the following paper: Frequency-domain attentio
   <img src="model/figs/segment_model.png" width="700"/>
 </p>
 
+
 <p align="center">
   <img src="model/figs/classify_model.png" width="500"/>
 </p>
