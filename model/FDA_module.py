@@ -8,7 +8,7 @@ from model.utils import PreLayerNorm, FeedForward
 
 class FDA_build(nn.Module):
     def __init__(self, in_channels, out_channels, image_size, module_num=2, patch_size=2, mlp_expand=4, heads=6,
-                 dim_head=128, dropout=0.1, emb_dropout=0.1):
+                 dim_head=128, dropout=0.1, emb_dropout=0.1, alpha=0.):
         super().__init__()
         assert image_size % patch_size == 0, 'The image size must be divisible by the patch size.'
         self.patch_dim = in_channels * patch_size ** 2
@@ -21,7 +21,7 @@ class FDA_build(nn.Module):
         )
         self.dropout = nn.Dropout(emb_dropout)
         self.transformer = FrequencyAttLayer(self.out_channels, image_size, module_num, heads, dim_head,
-                                         self.mlp_dim, dropout)
+                                         alpha, self.mlp_dim, dropout)
         self.recover_patch_embedding = nn.Sequential(
             Rearrange('b (h w) c -> b c h w', h=image_size // patch_size),
         )
@@ -35,7 +35,7 @@ class FDA_build(nn.Module):
         return out
 
 class FrequencyAttLayer(nn.Module):
-    def __init__(self, dim, image_size, module_num, heads, dim_head,
+    def __init__(self, dim, image_size, module_num, heads, dim_head, alpha,
                  mlp_dim=1024, dropout=0.1):
         super().__init__()
         self.layers = nn.ModuleList([])
@@ -46,7 +46,7 @@ class FrequencyAttLayer(nn.Module):
             self.layers.append(PreLayerNorm(dim, FeedForward(dim, mlp_dim, dropout=dropout)))
 
             self.layers.append(PreLayerNorm(dim, nn.Identity()))
-            self.layers.append(Attention_pure(dim, heads=heads, dim_head=dim_head, dropout=dropout))
+            self.layers.append(Attention_pure(dim, alpha=alpha, heads=heads, dim_head=dim_head, dropout=dropout))
             self.layers.append(PreLayerNorm(dim, FeedForward(dim, mlp_dim, dropout=dropout)))
 
     def forward(self, x):
@@ -86,7 +86,7 @@ class FrequencyTrans(nn.Module):
         return x, weight.abs().detach()
 
 class Attention_pure(nn.Module):
-    def __init__(self, dim, heads=8, dim_head=64, dropout=0., pure_rate=0. , pure=False):
+    def __init__(self, dim, alpha, heads=8, dim_head=64, dropout=0.):
         super().__init__()
 
         inner_dim = dim_head * heads
@@ -103,7 +103,7 @@ class Attention_pure(nn.Module):
             nn.Dropout(dropout)
         ) if project_out else nn.Identity()
 
-        self.FEP = FEP_module(ch_in=dim, pure_rate=pure_rate, pure=pure)
+        self.FEP = FEP_module(ch_in=dim, alpha=alpha)
 
     def forward(self, x, weight): # weight:
         qkv = self.to_qkv(x).chunk(3, dim=-1)
@@ -119,10 +119,9 @@ class Attention_pure(nn.Module):
 
 # Frequency excitation and pruning module
 class FEP_module(nn.Module):
-    def __init__(self, ch_in, reduction=4, pure_rate=0., pure=False):
+    def __init__(self, ch_in, reduction=4, alpha=0.):
         super().__init__()
-        self.pure_rate=pure_rate
-        self.pure = pure
+        self.alpha = alpha
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.norm = nn.LayerNorm(ch_in)
         self.fc = nn.Sequential(
@@ -137,6 +136,6 @@ class FEP_module(nn.Module):
         y = self.avg_pool(weight).view(1,d)
         y = self.norm(y)
         y = self.fc(y) * 2
-        if self.pure:
-            y[y < self.pure_rate]=0
+        if self.alpha:
+            y[y < self.alpha]=0
         return x * y

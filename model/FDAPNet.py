@@ -4,7 +4,7 @@ from model.FDA_module import FDA_build
 from model.DGA_module import DGA_build
 
 class SegmentEncoder(nn.Module):
-    def __init__(self, seg_classes, imgsize, n_channels=3, bilinear=True, FDA_num=2, DGA_num=2):
+    def __init__(self, seg_classes, imgsize, n_channels=3, bilinear=True, FDA_num=2, DGA_num=2, alpha=0.):
         super().__init__()
         self.n_classes = seg_classes
         self.bilinear = bilinear
@@ -19,7 +19,7 @@ class SegmentEncoder(nn.Module):
 
         # Frequency domain attention module
         self.FDA_stage = FDA_build(512 // self.scale, 512 // self.scale, imgsize // 8, FDA_num,
-                                   patch_size=1, heads=6, dim_head=128)
+                                   patch_size=1, heads=6, dim_head=128, alpha=alpha)
         self.FDA_out = nn.Conv2d(512 // self.scale, 512 // self.scale // factor, kernel_size=1, padding=0, bias=False)
 
         # Deformable global attention module
@@ -40,10 +40,10 @@ class SegmentEncoder(nn.Module):
         return x1, x2, x_DGA, x3, x4, x5
 
 class FDAPNet_Segment(nn.Module):
-    def __init__(self, seg_classes, imgsize, n_channels=3, bilinear=True, FDA_num=2, DGA_num=2):
+    def __init__(self, seg_classes, imgsize, n_channels=3, bilinear=True, FDA_num=2, DGA_num=2, alpha=0.):
         super(FDAPNet_Segment, self).__init__()
         self.scale = 4
-        self.seg_encoder = SegmentEncoder(seg_classes, imgsize, n_channels, bilinear, FDA_num, DGA_num)
+        self.seg_encoder = SegmentEncoder(seg_classes, imgsize, n_channels, bilinear, FDA_num, DGA_num, alpha)
         factor = 2 if bilinear else 1
         self.decoder1 = Up(512 // self.scale // 2 * 3, 256 // self.scale)
         self.decoder2 = Up_DGA(512 // self.scale, 256 // factor // self.scale)
@@ -61,10 +61,10 @@ class FDAPNet_Segment(nn.Module):
         return seg_out
 
 class FDAPNet_classify(nn.Module):
-    def __init__(self, cls_classes, seg_classes, imgsize, n_channels=3, bilinear=True, FDA_num=2, DGA_num=2):
+    def __init__(self, cls_classes, seg_classes, imgsize, n_channels=3, bilinear=True, FDA_num=2, DGA_num=2, alpha=0.):
         super(FDAPNet_classify, self).__init__()
         self.scale = 4
-        self.seg_encoder = SegmentEncoder(seg_classes, imgsize, n_channels, bilinear, FDA_num, DGA_num)
+        self.seg_encoder = SegmentEncoder(seg_classes, imgsize, n_channels, bilinear, FDA_num, DGA_num, alpha)
 
         self.cls_stage1 = Cls_head(n_channels, 128//self.scale)
         self.cls_stage2 = BasicBlock_Cls(256//self.scale, 256//self.scale, stride=2)
@@ -109,6 +109,7 @@ def params_load_and_freeze(model, seg_params_path): # freeze the params in the s
     return model
 
 if __name__ == '__main__':
+    # forward test
     seg_model = FDAPNet_Segment_build(seg_classes=2, seg_imgsize=224).to('cuda:0')
     cls_model = FDAPNet_Classify_build(cls_classes=2, cls_imgsize=224).to('cuda:0')
     x = torch.rand([1,1,224,224]).to('cuda:0')
