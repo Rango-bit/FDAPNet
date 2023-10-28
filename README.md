@@ -1,5 +1,5 @@
 # FDAPNet
-This repo is an implementation of the following paper: Frequency-domain attention pruning network for recognizing hepatic echinococcosis in ultrasound images. The paper is currently under review at Medical Image Analysis.
+This repo is an implementation of the following paper: Frequency-domain attention pruning network for recognizing hepatic echinococcosis in ultrasound images. The paper is currently under review at Information Sciences.
 
 The detailed structure of the FDAPNet model is shown in the following figure:
 <p align="center">
