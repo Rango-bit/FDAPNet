@@ -18,7 +18,7 @@ The segmentation performance of FDAPNet on ultrasound images of hepatic echinoco
 
 The following shows the classification performance of FDAPNet on ultrasound images of hepatic echinococcosis in comparison with other models:
 <p align="center">
-  <img src="model/figs/classify_results.jpg" width="400"/>
+  <img src="model/figs/classify_results.jpg" width="300"/>
 </p>
 
 # Requirements
