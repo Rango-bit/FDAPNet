@@ -11,12 +11,12 @@ The detailed structure of the classification part is shown as follows:
   <img src="model/figs/classify_model.png" width="500"/>
 </p>
 
-The segmentation performance of FDAPNet on ultrasound images of hepatic encopresis is as follows:
+The segmentation performance of FDAPNet on ultrasound images of hepatic echinococcosis in comparison with other models is as follows:
 <p align="center">
   <img src="model/figs/segment_results.jpg" width="600"/>
 </p>
 
-The following shows the classification performance of FDAPNet on ultrasound images of hepatic encopresis:
+The following shows the classification performance of FDAPNet on ultrasound images of hepatic echinococcosis in comparison with other models:
 <p align="center">
   <img src="model/figs/classify_results.jpg" width="500"/>
 </p>
