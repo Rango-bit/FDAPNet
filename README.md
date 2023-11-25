@@ -1,5 +1,5 @@
 # FDAPNet
-This repo is an implementation of the following paper: A Frequency-Domain Attention Pruning Model for Segmentation and Classification of Hepatic Echinococcosis in Ultrasound Images. The paper is currently under review at IEEE Journal of Biomedical and Health Informatics. We first open-sourced the FDAPNet model code and will release the full project code after the paper is accepted.
+This repo is an implementation of the following paper: A Frequency-Domain Attention Pruning Model for Segmentation and Classification of Hepatic Echinococcosis in Ultrasound Images. The paper is currently under review at IEEE Journal of Biomedical and Health Informatics. We first open-sourced the FDAPNet model code and will release the complete project code after the paper is accepted.
 
 The detailed structure of the FDAPNet model is shown in the following figure:
 <p align="center">
